@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>WebInpainting</title>
+    <!--<script src="scripts/jquery-1.11.3.min.js"></script>-->
+    <script src="scripts/walshhadamard.js"></script>
+    <script src="scripts/kdtree.js"></script>
+    <script src="scripts/priorityqueue.js"></script>
+    <script src="scripts/imagehelpers.js"></script>
+    <script src="scripts/patchmatch.js"></script>
+    <script src="scripts/maxflow.js"></script>
+    <script src="scripts/poissonblending.js"></script>
+    <script src="scripts/graphcut.js"></script>
+    <script src="scripts/gui.js"></script>
+    <script src="scripts/paint.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,700,300,200' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="css/css.css">
+</head>
+<body onload="Main();" oncontextmenu="return false;">
+    <div id="background"></div>
+    <div id="backgroundDarkener"></div>
+
+    <div id="mainContainer">
+        <div>
+            <canvas id="mainCanvas"></canvas>
+            <canvas id="paintCanvas"></canvas>
+            <canvas id="inpaintCanvas"></canvas>
+        </div>
+        <div id="settings">
+            <p class="settingsLabel">
+                Quality: 
+                <input type="range" id="qualitySlider" min="15" value="40" max="200" step="1" />
+            </p>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <ul class="instructionsList">
+            <li>Left click to paint</li>
+            <li>Right click to erase</li>
+            <li>] to increase radius</li>
+            <li>[ to decrease radius</li>
+            <li>[ENTER] to inpaint</li>
+            <li>Z to undo</li>
+        </ul>
+    </div>
+
+    <div id="progress">
+        <div id="progressBar"></div>
+        <div id="progressText"></div>
+    </div>
+
+    <svg id="cursorContainer">
+        <filter id="dropshadow" height="200%">
+            <!-- DropShadow Filter -->
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" /> <!-- stdDeviation is how much to blur -->
+            <feMerge>
+                <feMergeNode /> <!-- this contains the offset blurred image -->
+                <feMergeNode in="SourceGraphic" /> <!-- this contains the element that the filter is applied to -->
+            </feMerge>
+        </filter>
+        <circle r="36" stroke="white" stroke-width="1.5" fill-opacity="0" id="cursor" style="filter:url(#dropshadow)" />
+    </svg>
+</body>
+</html>
