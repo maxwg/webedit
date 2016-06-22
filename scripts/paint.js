@@ -11,6 +11,7 @@ var cursor;
 var prevImgData = null;
 var mainPeaks = null;
 var worker;
+var ImgHelpers = ImageHelpers();
 
 function InitializeCanvas(src) {
     cursor = document.getElementById("cursor");
@@ -74,15 +75,15 @@ function BindRadiusKeys() {
 function Inpaint() {
     var paintedArea = GetCanvasData(canvasOverlay);
     ClearCanvas(canvasOverlay);
-    if (false && typeof (Worker) !== "undefined") {
+    if (typeof (Worker) !== "undefined") {
         if (mainPeaks != null) {
             document.getElementById("progress").style.opacity = 1;
             document.getElementById("progressText").innerHTML = "Loading";
             document.getElementById("progressBar").style.width = "0%";
             prevImgData = GetCanvasData(mainCanvas);
 
-            worker = new Worker("scripts/graphcutworker.js");
-            worker.postMessage({ "img": prevImgData, "overlay": paintedArea, "peaks": mainPeaks, "iterations": document.getElementById("qualitySlider").value, "similar": similarOff });
+            worker = new Worker("scripts/photomontage-worker.js");
+            worker.postMessage({ "img": prevImgData, "overlay": paintedArea, "peaks": mainPeaks, "iterations": document.getElementById("qualitySlider").value });
 
             worker.onmessage = function (e) {
                 if (e.data.progress) {
@@ -95,20 +96,21 @@ function Inpaint() {
                     var paintImage = GetCanvasData(mainCanvas);
                     var imageData = paintImage.data;
                     var inpaint = e.data.return;
+                    console.log(imageData);
+                    console.log(inpaint);
                     for (var pixel in inpaint) {
                         imageData[pixel] = inpaint[pixel];
                     }
-
-                    var inpainting = GetCanvasData(mainCanvas);
                     FillCanvasFromData(paintImage, mainCanvas);
-
-                    for (var g = 0; g < inpainting.width * inpainting.height; g++) {
-                        inpainting.data[g * 4] = Math.abs((e.data.label[g] + 255) % 256);
-                        inpainting.data[g * 4 + 1] = Math.abs((e.data.label[g] * 17 + 255) % 256);
-                        inpainting.data[g * 4 + 2] = Math.abs((e.data.label[g] * 83 + 255) % 256);
-                    }
-                    FillCanvasFromData(inpainting, document.getElementById("inpaintCanvas"));
                 }
+                    // var inpainting = GetCanvasData(mainCanvas);
+                //     for (var g = 0; g < inpainting.width * inpainting.height; g++) {
+                //         inpainting.data[g * 4] = Math.abs((e.data.label[g] + 255) % 256);
+                //         inpainting.data[g * 4 + 1] = Math.abs((e.data.label[g] * 17 + 255) % 256);
+                //         inpainting.data[g * 4 + 2] = Math.abs((e.data.label[g] * 83 + 255) % 256);
+                //     }
+                //     FillCanvasFromData(inpainting, document.getElementById("inpaintCanvas"));
+                // }
             };
             worker.onerror = function (e) {
                 console.log(e);
@@ -118,11 +120,11 @@ function Inpaint() {
         }
     } else {
         if (mainPeaks == null) {
-            var yuv = RGBtoYUV(GetCanvasData(mainCanvas));
-            mainPeaks = GetSimilarFieldPeaks(yuv, 200);
+            var yuv = ImgHelpers.RGBtoYUV(GetCanvasData(mainCanvas));
+            mainPeaks = ANNStats(8)(yuv);
         }
         prevImgData = GetCanvasData(mainCanvas);
-        var inpaint = GraphCutOptimisation(prevImgData, paintedArea, mainPeaks, document.getElementById("qualitySlider").value);
+        var inpaint = Photomontage(prevImgData, paintedArea, mainPeaks, document.getElementById("qualitySlider").value);
         var paintImage = GetCanvasData(mainCanvas);
         var imageData = paintImage.data;
         for (var pixel in inpaint) {
@@ -138,8 +140,8 @@ function StartBackgroundOffsets() {
         document.getElementById("progress").style.opacity = 1;
         document.getElementById("progressText").innerHTML = "Loading";
         document.getElementById("progressBar").style.width = "0%";
-        worker = new Worker("scripts/patchmatchworker.js");
-        worker.postMessage({ "img": GetCanvasData(mainCanvas), "offsets": 1000 });
+        worker = new Worker("scripts/nearest-neighbour-worker.js");
+        worker.postMessage({ "img": GetCanvasData(mainCanvas)});
         worker.onmessage = function (e) {
             if (e.data.progress) {
                 document.getElementById("progressBar").style.width = e.data.complete + "%";
@@ -147,7 +149,7 @@ function StartBackgroundOffsets() {
             }
             else {
                 mainPeaks = e.data.return;
-                similarOff = e.data.similarOff;
+                // similarOff = e.data.similarOff;
                 worker.terminate();
                 document.getElementById("progress").style.opacity = 0;
             }

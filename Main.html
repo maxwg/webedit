@@ -5,12 +5,11 @@
     <meta charset="utf-8" />
     <title>WebInpainting</title>
     <!--<script src="scripts/jquery-1.11.3.min.js"></script>-->
-    <script src="scripts/walshhadamard.js"></script>
+    <script src="scripts/hadamard-transform.js"></script>
     <script src="scripts/kdtree.js"></script>
-    <script src="scripts/priorityqueue.js"></script>
-    <script src="scripts/imagehelpers.js"></script>
-    <script src="scripts/patchmatch.js"></script>
-    <script src="scripts/maxflow.js"></script>
+    <script src="scripts/image-helpers.js"></script>
+    <script src="scripts/nearest-neighbour.js"></script>
+    <script src="scripts/nearest-neighbour-stats.js"></script>
     <script src="scripts/poissonblending.js"></script>
     <script src="scripts/graphcut.js"></script>
     <script src="scripts/gui.js"></script>
@@ -21,7 +20,10 @@
 <body onload="Main();" oncontextmenu="return false;">
     <div id="background"></div>
     <div id="backgroundDarkener"></div>
-
+    <div id="topmenu">
+        <button class="topmenu_btn">Open</button>
+        <button class="topmenu_btn">Save</button>
+    </div>
     <div id="mainContainer">
         <div>
             <canvas id="mainCanvas"></canvas>

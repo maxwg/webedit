@@ -1,247 +1,222 @@
-/*  points: (x, y) :: (int, int) pixel coord
-            v :: Array of WHT vectors, each of equal dimension
-    Finds dimension with maximum StDev(variance), and splits at the median of that dimension.
-*/
-const LEAFSIZE = 32;
-var KDTree = function (points) {
-    if (points.length <= LEAFSIZE) {
-        this.dimension = -1;
-        this.elements = points;
-        for (var i = 0; i < points.length; i++)
-            points[i].leaf = this;
-        return;
-    }
-    //  else {
-    this.dimension = 0;
-    var curMaxVariance = -1;
-    var maxDimMean = 0;
-    //Get dimension of maximum "spread"
-    for (var i = 0; i < points[0].v.length; i++) { //i is the dimension
-        //Calculate the variance of the dimension with Welford's Method
-        //Two-Pass may potentially be more efficient.
-        var mean = 0.0;
-        var variance = 0.0;
-        for (var j = 0; j < points.length; j++) { //j is the point number.
-            var prevMean = mean;
-            var value = points[j].v[i];
-            mean += (value - prevMean) / (j + 1);
-            variance += (value - prevMean) * (value - mean);
-        }
-        if (variance > curMaxVariance) {
-            curMaxVariance = variance;
-            maxDimMean = mean;
-            this.dimension = i;
-        }
-    }
-    var stDev = Math.sqrt(curMaxVariance / (points.length));
-    if (stDev < 0.001) { //All patches are effectively the same
-        //var newpts = points;
-        /*var increment = ~~(points.length / LEAFSIZE);
-        for (i = 0; i < LEAFSIZE; i++) {
-            newpts.push(points[i]);
-        }*/
-        // newpts.push(points[~~(points.length / 2)]);
-        for (var i = 0; i < points.length; i++)
-            points[i].leaf = this;
-        this.dimension = -1;
-        this.elements = [points[0]];
-        return;
-    }
-    //Find the median of this dimension, and split the tree here.
-    if (points.length < 20000) { //Median of Medians - slower, yet more accurate
-        var medIndex = MedianofMedians(points, this.dimension, 0, points.length - 1);
-        this.median = points[medIndex].v[this.dimension];
-    }
-    else { //binApprox - accurate and fast for large sets, yet rounding error makes it unsuitable for smaller
-        this.median = Median(points, this.dimension, maxDimMean, stDev);
-    }
-    //console.log(this.median);
-    // this.median = maxDimMean;
-    var left = [];
-    var right = [];
-    var eq = [];
-    for (var i = 0; i < points.length; i++) {
-        var curpt = points[i];
-        var curptval = curpt.v[this.dimension];
-        if (curptval < this.median)
-            left.push(curpt);
-        else if (curptval > this.median)
-            right.push(curpt);
-        else { //eq prevents 0 element branches in the case the median makes up a majority.
-            eq.push(curpt)
-        }
-    }
-    if (eq.length > 0) {
-        if (right.length == 0) {
-            this.median -= 0.01;
-            Array.prototype.push.apply(right, eq);
-        }
-        else {
-            Array.prototype.push.apply(left, eq);
+/*******************************************************************************
+ ** kdtree.js
+ ** Copyright (C) 2015, Max Wang <maxw@inbox.com>
+ ** Implements a KDTree datastructure.
+ ** points : Array of vectors [[Comparable]] - vectors must be of same dimension
+ ** leaf_size : maximum size of final leaves
+ ** type: either "tree" or "map"
+ **
+ ** Return: type =  map: Binds leaves to each point element, adding the .leaf property
+ *           type = tree: returns a KDTree object with properties
+ *                        dimension: dimension of split. -1 indicates a leaf, containing elements:[point].
+ *                        median : median of split in dimension.
+ *                        left: left subtree
+ *                        right: right subtree
+ *
+ *******************************************************************************/
+
+"use strict";
+
+var KDTREE = function (points, leaf_size, type) {
+    const LEAF_SIZE = leaf_size;
+    var pointSize = points[0].length;
+
+    var createKDTree = function (points) {
+        if (points.length <= LEAF_SIZE) {
+            return {
+                dimension: -1,
+                elements: points
+            };
         }
 
-    }
-    // console.log("left: " + left.length);
-    //console.log("right: " + right.length);
-
-    //*********************************DEBUG -- REMOVE FROM FINAL FOR PERFORMANCE*****************************
-    if (left.length == 0 || right.length == 0) {
-        console.log("ZERO LENGTH LIST! Median: " + this.median + " eq " + eq.length + " stdev: " + stDev + "mean: " + maxDimMean + " dimension: " + this.dimension);
-        console.log(points);
-        console.log(left);
-        console.log(right);
-        console.log(eq);
-        throw new Error();
-    }
-    //*******************************End DEBUG **************
-
-    this.left = new KDTree(left);
-    this.right = new KDTree(right);
-    //   }
-}
-
-KDTree.prototype.GetContainingLeaf = function (point) {
-    if (this.dimension == -1)
-        return this;
-    else if (point.v[this.dimension] <= this.median)
-        this.left.GetContainingLeaf(point);
-    else
-        this.right.GetContainingLeaf(point);
-
-}
-
-
-//BinMedian Algorithm -- http://www.stat.cmu.edu/~ryantibs/median/
-//Uses BinApprox for performance -- 1/1000th of a standard deviation not significant.
-function Median(vectors, dimension, mean, stDev) {
-    var count = 0;
-    var n = vectors.length;
-    var binCount = Log2(n) * 6 + 40; //Requires Log2 in walshhadamard.js
-    //Number of bins - determines accuracy.
-    var bins = [];
-    for (var i = 0; i < binCount; i++) {
-        bins[i] = 0;
-    }
-    var scalefactor = binCount / (2 * stDev);
-    var leftend = mean - stDev;
-    var rightend = mean + stDev;
-    var bin;
-    for (var i = 0; i < n; i++) {
-        var val = vectors[i].v[dimension];
-        if (val < leftend) {
-            count++;
+        var maxVarianceDim = dimensionOfMaximumVariance(points);
+        var dim = maxVarianceDim[0];
+        var stDev = Math.sqrt(maxVarianceDim[1] / points.length);
+        if (stDev < 0.0001) { //All patches are effectively the same
+            return {
+                dimension: -1,
+                elements: [points[~~(points.length / 2)]]
+            };
         }
-        else if (val < rightend) {
-            bin = ~~((val - leftend) * scalefactor);
-            bins[bin]++;
+
+        var median = medianofMedians(points, dim, 0, points.length - 1)[dim];
+        var left = [];
+        var right = [];
+        var eq = [];
+        for (var i = 0, numPoints = points.length; i < numPoints; i++) {
+            var curpt = points[i];
+            var curptval = curpt[dim];
+            if (curptval < median)
+                left.push(curpt);
+            else if (curptval > median)
+                right.push(curpt);
+            else  //eq prevents 0 element branches in the case the median makes up a majority.
+                eq.push(curpt);
         }
+        if (eq.length > 0) {
+            if (right.length == 0) {
+                median -= 0.01;
+                Array.prototype.push.apply(right, eq);
+            }
+            else
+                Array.prototype.push.apply(left, eq);
+        }
+        return {
+            median: median,
+            dimension: dim,
+            left: createKDTree(left),
+            right: createKDTree(right)
+        };
     }
-    //console.log(count + " -- " + stDev + " - " + mean);
-    //If vectors.length is odd
-    if (n & 1) {
-        var k = (n + 1) / 2;
-        for (var i = 0; i < binCount; i++) {
-            count += bins[i];
-            if (count >= k) {
-                return (i + 0.5) / scalefactor + leftend;
+
+    function createKDMap(points) {
+        var numPoints = points.length;
+        if (numPoints <= LEAF_SIZE) {
+            for (var i = 0; i < numPoints; i++)
+                points[i].leaf = points;
+            return;
+        }
+
+        var maxVarianceDim = dimensionOfMaximumVariance(points);
+        var dim = maxVarianceDim[0];
+        var stDev = Math.sqrt(maxVarianceDim[1] / (numPoints));
+        if (stDev < 0.05) { //All patches are effectively the same
+            for (var i = 0; i < numPoints; i++)
+                points[i].leaf = [points[~~(points.length / 2)]];
+            return;
+        }
+        var median = medianofMedians(points, dim, 0, points.length - 1)[dim];
+        var left = [];
+        var right = [];
+        for (var i = 0; i < numPoints; i++) {
+            var curpt = points[i];
+            var curptval = curpt[dim];
+            if (curptval < median)
+                left.push(curpt);
+            else if (curptval > median)
+                right.push(curpt);
+            else  //eq prevents 0 element branches in the case the median makes up a majority.
+                (Math.random() < 0.5) ? right.push(curpt) : left.push(curpt);
+        }
+
+        createKDMap(left);
+        createKDMap(right);
+    }
+
+    function dimensionOfMaximumVariance(points) {
+        var maxVariance = -1;
+        var maxVarianceDimension;
+        //Get dimension of maximum "spread"
+        for (var dim = 0; dim < pointSize; dim++) {
+            var mean = 0.0;
+            var variance = 0.0;
+            for (var j = 0, numPoints = points.length; j < numPoints; j++) { //j is the point number.
+                var prevMean = mean;
+                var value = points[j][dim];
+                mean += (value - prevMean) / (j + 1);
+                variance += (value - prevMean) * (value - mean);
+            }
+            if (variance > maxVariance) {
+                maxVariance = variance;
+                maxVarianceDimension = dim;
+            }
+        }
+        return [maxVarianceDimension, maxVariance];
+    }
+
+    function medianofMedians(vectors, dim, left, right) {
+        const rl = right - left;
+        if(rl <= 1)
+            return vectors[left];
+        if(rl <= 3)
+            return vectors[medianOfThreeFour(vectors, dim, left)];
+        if(rl == 4)
+            return vectors[medianOfFive(vectors, dim, left)];
+
+        var momArray = [];
+        var i;
+        const rn5 = right - 5;
+        for (i = left; i <= rn5; i += 5) {
+            momArray.push(vectors[medianOfFive(vectors, dim, i)])
+        }
+        if(i < rn5){
+            var len = rn5 - i;
+            if(len <=1)
+                momArray.push(vectors[i+5]);
+            else
+                momArray.push(vectors[medianOfThreeFour(vectors, dim, i+5)]);
+        }
+
+        return medianofMedians(momArray, dim, 0, momArray.length -1);
+    }
+
+    function medianOfFive(vectors, dim, start){
+        var a = vectors[start][dim];
+        var b = vectors[start+1][dim];
+        var c = vectors[start+2][dim];
+        var d = vectors[start+3][dim];
+        var e = vectors[start+4][dim];
+        return b < a ? d < c ? b < d ? a < e ? a < d ? e < d ? start+4 : start+3
+            : c < a ? start+2 : start
+            : e < d ? a < d ? start : start+3
+            : c < e ? start+2 : start+4
+            : c < e ? b < c ? a < c ? start : start+2
+            : e < b ? start+4 : start+1
+            : b < e ? a < e ? start : start+4
+            : c < b ? start+2 : start+1
+            : b < c ? a < e ? a < c ? e < c ? start+4 : start+2
+            : d < a ? start+3 : start
+            : e < c ? a < c ? start : start+2
+            : d < e ? start+3 : start+4
+            : d < e ? b < d ? a < d ? start : start+3
+            : e < b ? start+4 : start+2
+            : b < e ? a < e ? start : start+4
+            : d < b ? start+3 : start+1
+            : d < c ? a < d ? b < e ? b < d ? e < d ? start+4 : start+3
+            : c < b ? start+2 : start+1
+            : e < d ? b < d ? start+1 : start+3
+            : c < e ? start+2 : start+4
+            : c < e ? a < c ? b < c ? start+1 : start+2
+            : e < a ? start+4 : start
+            : a < e ? b < e ? start+1 : start+4
+            : c < a ? start+2 : start
+            : a < c ? b < e ? b < c ? e < c ? start+4 : start+2
+            : d < b ? start+3 : start+1
+            : e < c ? b < c ? start+1 : start+2
+            : d < e ? start+3 : start+4
+            : d < e ? a < d ? b < d ? start+1 : start+3
+            : e < a ? start+4 : start
+            : a < e ? b < e ? start+1 : start+4
+            : d < a ? start+3 : start;
+    }
+
+    function medianOfThreeFour(vectors, dim, start){
+        var a = vectors[start][dim];
+        var b = vectors[start+1][dim];
+        var c = vectors[start+2][dim];
+
+        return a < b ? b < c ? start+1
+            : c < a ? start : start+2
+            : a < c ? start
+            : c < b ? start + 1 : start + 2;
+    }
+
+    function insertSort(vectors, dim, left, right) {
+        for (var i = left + 1; i < right; i++) {
+            var j = i;
+            while (j > left && vectors[j - 1][dim] > vectors[j][dim]) {
+                var tmp = vectors[j];
+                vectors[j] = vectors[j - 1];
+                vectors[j - 1] = tmp;
+                j--;
             }
         }
     }
-    else {
-        var k = n / 2;
-        for (var i = 0; i < binCount; i++) {
-            count += bins[i];
-            if (count >= k) {
-                var j = i;
-                while (count == k) {
-                    j++;
-                    count += bins[j];
-                }
-                return (i + j + 1) / (2 * scalefactor) + leftend;
-            }
-        }
 
-    }
-    console.log("ERROR:: Could not find median -- " + (n & 1) + " " + binCount + " " + count);
-    throw new Error();
-}
+    return type == 'tree' ? createKDTree(points) : createKDMap(points);
+};
 
-
-//Median of Medians function for point vectors
-//Each Vector is x:int, y:int, v:[int]
-//O(n), estimates median with a reasonable accuracy.
-//Appears to be too slow.
-function MedianofMedians(vectors, dimension, left, right) {
-    if (right - left <= 4) {
-        InsertSort(vectors, dimension, left, right + 1);
-        return ~~((right + left) / 2); //Middle Element Index
-    }
-    for (var i = left; i <= right - 5; i += 5) {
-        var median = MedianofMedians(vectors, dimension, i, i + 4);
-        var base = ~~(i / 5);
-        var tmpMed = vectors[median];
-        vectors[median] = vectors[base];
-        vectors[base] = tmpMed;
-    }
-    return MedianofMedians(vectors, dimension, 0, ~~((right + 1) / 5));
-}
-
-//Fast median of 5 through encoding if statements
-//Given that the code is compiled (ala chrome)
-//i give up
-function SelectMed5(vectors, dimension, left) {
-    var index = 0;
-    var v0 = vectors[0].v[dimension];
-    var v1 = vectors[1].v[dimension];
-    var v2 = vectors[2].v[dimension];
-    var v3 = vectors[3].v[dimension];
-    var v4 = vectors[4].v[dimension];
-    if (v0 > v1) {   // v1 -- v0
-
-    }
-    else { //v0 -- v1
-        if (v1 > v2) { // v0 -- v2 -- v1 
-            if (v2 > v3) { //(v0, v3)? -- v2 -- v1 
-                if (v4 > v2) { //(v0, v3) -- v2 -- (v1, v4)
-                    return 2;
-                }
-                else { //(v0, v3, v4) -- v2 -- v1
-                    if (v0 > v3) {
-                        if (v0 > v4) { // (v3, v4) --v0 --v2 --v1
-                            return 0;
-                        }
-                        // v0 > v3 && v0 <= v4 => v3 -- v0 -- v4
-                        return 4;
-                    }
-                    else { //v0, v3, v4 
-                        if (v3 > v4) {
-                            return 3;
-                        }
-                        return 4; // v3 <= v4 && v0 <= v3 => v0 -- v3 --- v4 
-                    }
-                }
-            }
-            else {  // v0 -- v1 -- v2 
-                if (v3 > v2) { // v0 -- v1 -- v2 -- v3
-
-                }
-            }
-        }
-        else {
-
-        }
-    }
-}
-
-
-function InsertSort(vectors, dimension, left, right) {
-    for (var i = left + 1; i < right; i++) {
-        var j = i;
-        while (j > left && vectors[j - 1].v[dimension] > vectors[j].v[dimension]) {
-            var tmp = vectors[j];
-            vectors[j] = vectors[j - 1];
-            vectors[j - 1] = tmp;
-            j--;
-        }
-    }
-}
+if (typeof module !== 'undefined' && module.exports)
+    module.exports = KDTREE;
+else
+    this.KDTree = KDTREE;
