@@ -1,15 +1,11 @@
-﻿var mainCanvas;
-var canvasOverlay;
-var mainContainer;
-var backgroundDiv;
-var cursorContainer;
-var toolbox;
-var cursor;
+﻿var mainCanvas, canvasOverlay, mainContainer,
+    guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
 Transforms = {mainContainer: {scale: 1}};
 
 function Main() {
     mainCanvas = document.getElementById("mainCanvas");
     canvasOverlay = document.getElementById("paintCanvas");
+    guideCanvas = document.getElementById("guideCanvas");
     mainContainer = document.getElementById("mainContainer");
     backgroundDiv = document.getElementById("background");
     cursorContainer = document.getElementById("cursorContainer");
@@ -79,6 +75,6 @@ function dragMoveListener(event) {
     //         'translate(' + x + 'px, ' + y + 'px) scale('
     //         + scale + ", " + scale + ')';
 
-        target.style.left = parseFloat(target.style.left) + event.dx + 'px';
-        target.style.top = parseFloat(target.style.top) + event.dy + 'px';
+    target.style.left = parseFloat(target.style.left) + event.dx + 'px';
+    target.style.top = parseFloat(target.style.top) + event.dy + 'px';
 }

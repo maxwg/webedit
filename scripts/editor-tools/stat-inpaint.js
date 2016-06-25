@@ -1,5 +1,5 @@
 "use strict";
-this.StatInpaint = function(){
+this.StatInpaint = function () {
     /*  Enable Painting on the canvas overlay
      */
     function bindPaintEvent(canvas) {
@@ -43,17 +43,19 @@ this.StatInpaint = function(){
             paint = false;
             if (isRightMB)
                 context.restore();
+            isRightMB = false;
         }
         canvas.onmouseleave = function (e) {
             paint = false;
             if (isRightMB)
                 context.restore();
+            isRightMB = false;
             cursor.style.visibility = "hidden";
         }
         startBackgroundOffsets();
     }
 
-    function unbind(canvas){
+    function unbind(canvas) {
         canvas.onmouseup = undefined;
         canvas.onmousedown = undefined;
         canvas.onmousemove = undefined;
@@ -71,7 +73,12 @@ this.StatInpaint = function(){
                 prevImgData = getCanvasData(mainCanvas);
 
                 worker = new Worker("scripts/photomontage-worker.js");
-                worker.postMessage({ "img": prevImgData, "overlay": paintedArea, "peaks": mainPeaks, "iterations": document.getElementById("qualitySlider").value });
+                worker.postMessage({
+                    "img": prevImgData,
+                    "overlay": paintedArea,
+                    "peaks": mainPeaks,
+                    "iterations": document.getElementById("qualitySlider").value
+                });
 
                 worker.onmessage = function (e) {
                     if (e.data.progress) {
@@ -129,7 +136,7 @@ this.StatInpaint = function(){
             document.getElementById("progressText").innerHTML = "Loading";
             document.getElementById("progressBar").style.width = "0%";
             worker = new Worker("scripts/nearest-neighbour-worker.js");
-            worker.postMessage({ "img": getCanvasData(mainCanvas)});
+            worker.postMessage({"img": getCanvasData(mainCanvas)});
             worker.onmessage = function (e) {
                 if (e.data.progress) {
                     document.getElementById("progressBar").style.width = e.data.complete + "%";

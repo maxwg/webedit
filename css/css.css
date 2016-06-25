@@ -92,8 +92,16 @@ canvas {
     top: 0;
     left: 0;
     opacity: 0.3;
+    z-index:2;
     pointer-events: all;
     cursor: crosshair;
+}
+#guideCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index:1;
+    pointer-events:none;
 }
 
 #topmenu {

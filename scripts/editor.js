@@ -16,7 +16,7 @@ function initializeCanvas(src) {
     img.src = src;
     document.getElementById("background").style.backgroundImage = "url(" + src + ")";
     img.onload = function () {
-        fillCanvasFromImage(this, mainCanvas, canvasOverlay);
+        fillCanvasFromImage(this, mainCanvas, [canvasOverlay, guideCanvas]);
         mainCanvas.onchange();
         bindRadiusKeys();
         tool = ToolManager(canvasOverlay);
@@ -30,7 +30,7 @@ function loadImage(src) {
     img.src = src;
     document.getElementById("background").style.backgroundImage = "url(" + src + ")";
     img.onload = function () {
-        fillCanvasFromImage(this, mainCanvas, canvasOverlay);
+        fillCanvasFromImage(this, mainCanvas, [canvasOverlay, guideCanvas]);
         mainCanvas.onchange();
     }
 }
@@ -93,12 +93,15 @@ function bindRadiusKeys() {
 
 
 
-function fillCanvasFromImage(img, canvas, canvasOverlay) {
+function fillCanvasFromImage(img, canvas, canvasList) {
     var ctx = canvas.getContext("2d");
     canvas.width = img.width;
-    canvasOverlay.width = img.width;
     canvas.height = img.height;
-    canvasOverlay.height = img.height;
+    for (var cv in canvasList){
+        var c = canvasList[cv];
+        c.width = img.width;
+        c.height = img.height;
+    }
     ctx.drawImage(img, 0, 0);
 }
 
@@ -132,6 +135,44 @@ function drawCircle(context, x, y, r) {
     context.closePath();
     context.fill();
 }
+
+function clipCircle(ctx, x, y, r, f) {
+    /// create off-screen temporary canvas where we draw in the shadow
+    var temp = document.createElement('canvas'),
+        tx = temp.getContext('2d');
+
+    temp.width = ctx.canvas.width;
+    temp.height = ctx.canvas.height;
+
+    /// offset the context so shape itself is drawn outside canvas
+    tx.translate(-temp.width, 0);
+
+    /// offset the shadow to compensate, draws shadow only on canvas
+    tx.shadowOffsetX = temp.width;
+    tx.shadowOffsetY = 0;
+
+    /// black so alpha gets solid
+    tx.shadowColor = '#000';
+
+    /// "feather"
+    tx.shadowBlur = f;
+
+    /// draw the arc, only the shadow will be inside the context
+    tx.arc(x, y, r, 0, 2 * Math.PI);
+    tx.closePath();
+    tx.fill();
+
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(temp, 0, 0);
+    ctx.restore();
+    // context.beginPath();
+    // context.arc(x, y, r, 0, 2 * Math.PI);
+    // context.closePath();
+    // context.clip();
+}
+
 
 function getPosition(element) {
     var xPosition = 0;
