@@ -42,7 +42,7 @@ var IMAGEHELPERS = function () {
         RGBtoYUV: RGBtoYUV,
         YUVtoRGB: YUVtoRGB
     }
-};
+}();
 if(typeof module !== 'undefined' && module.exports)
     module.exports = IMAGEHELPERS;
 else

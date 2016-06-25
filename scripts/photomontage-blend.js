@@ -11,7 +11,6 @@
  *          pixelNode: array mapping each painted pixel to a graph node.
  *******************************************************************************/
 
-"use strict";
 
 var POISSONBLEND = function (img, label, paintedArea, pixelNode) {
     const omega = 1.95;

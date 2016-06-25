@@ -47,6 +47,7 @@ var WalshHadamardTransform = function (data_len) {
                 bases.push(ker1[baseIdx]);
             }
         }
+        
         return bases;
     }
 
@@ -60,7 +61,7 @@ var WalshHadamardTransform = function (data_len) {
     }
 
     function establishGrayCodeOrder() {
-        var bit_len = ~~Math.log2(DATA_LEN) - 1;
+        var bit_len = ~~Math.log(DATA_LEN)*Math.LOG2E - 1;
         for (var i = 1; i < DATA_LEN; i++) {
             var prefix = gcPrefix(grayCode(i - 1), grayCode(i), bit_len);
             deltas.push(1 << prefix);

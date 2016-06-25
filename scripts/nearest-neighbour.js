@@ -24,7 +24,7 @@ var ANN = function (img, patch_size) {
     var KDTREE = KDTree || require('./kdtree.js');
     function calculate() {
         var whts = applyWHT();
-        KDTREE(whts, 36, 'map');
+        KDTREE(whts, 8, 'map');
         var ann = {};
         for (var y = 0; y <= boundY; y++) {
             for (var x = 0; x <= boundX; x++) {
@@ -43,16 +43,16 @@ var ANN = function (img, patch_size) {
         var x = patch.x, y = patch.y;
         var leaf0 = patch.leaf;
         var bestMatch = getBestMatch(patch, leaf0);
-        //if(x>0){
-        //    var bestMatch2 = getBestMatch(patch, whtMap[y * boundX + x - 1].leaf);
-        //	if(bestMatch2[1] < bestMatch[1])
-        //		bestMatch=bestMatch2;
-        //}
-        //if(y>0){
-        //    var bestMatch2 = getBestMatch(patch, whtMap[(y - 1) * boundX + x].leaf);
-        //	if(bestMatch2[1] < bestMatch[1])
-        //		bestMatch=bestMatch2;
-        //}
+        if(x>0){
+           var bestMatch2 = getBestMatch(patch, whtMap[y * boundX + x - 1].leaf);
+        	if(bestMatch2[1] < bestMatch[1])
+        		bestMatch=bestMatch2;
+        }
+        if(y>0){
+           var bestMatch2 = getBestMatch(patch, whtMap[(y - 1) * boundX + x].leaf);
+        	if(bestMatch2[1] < bestMatch[1])
+        		bestMatch=bestMatch2;
+        }
         return bestMatch[0];
     }
 
