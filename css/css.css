@@ -130,8 +130,6 @@ canvas {
     z-index:10;
     width:96px;
     height:200px;
-    -webkit-transition-duration:0.1s; /* Safari */
-    transition-duration: 0.1s;
 }
 
 #toolboxHead{
@@ -186,7 +184,7 @@ canvas {
     height: 100%;
     left: 0;
     background-color: rgb(076,110,120);
-    width: 0%;
+    width: 0;
 }
 
 #progressText {
@@ -196,8 +194,8 @@ canvas {
 
 #mainContainer {
     position: fixed;
-    -webkit-transition-duration:0.1s; /* Safari */
-    transition-duration: 0.1s;
+    -webkit-transition-duration:0.05s; /* Safari */
+    transition-duration: 0.05s;
 }
 
 #cursor {

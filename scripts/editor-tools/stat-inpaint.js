@@ -60,6 +60,7 @@ this.StatInpaint = function () {
         canvas.onmousedown = undefined;
         canvas.onmousemove = undefined;
         canvas.onmouseleave = undefined;
+        clearCanvas(canvasOverlay);
     }
 
     function inpaint() {

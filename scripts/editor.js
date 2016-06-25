@@ -1,15 +1,16 @@
 ﻿/*******************************************************************************
-** paint.js
-** Copyright (C) 2015, Max Wang <maxw@inbox.com>
-*******************************************************************************/
+ ** paint.js
+ ** Copyright (C) 2015, Max Wang <maxw@inbox.com>
+ *******************************************************************************/
 const maxDimensionWidth = 800;
 const maxDimensionHeight = 600;
 var radius = 36.0;
 var zoom = 1;
+var hardness = 10;
 var cursor;
 var prevImgData = null;
 var mainPeaks = null;
-var worker;
+var worker
 
 function initializeCanvas(src) {
     var img = new Image;
@@ -18,7 +19,7 @@ function initializeCanvas(src) {
     img.onload = function () {
         fillCanvasFromImage(this, mainCanvas, [canvasOverlay, guideCanvas]);
         mainCanvas.onchange();
-        bindRadiusKeys();
+        bindKeys();
         tool = ToolManager(canvasOverlay);
     }
 }
@@ -35,27 +36,38 @@ function loadImage(src) {
     }
 }
 
-function openImageSelector(){
+function openImageSelector() {
     var selector = document.getElementById("open-selector")
     fireEvent(selector, "click");
 }
 
 /*  Enable the use of keyboard keypresses to activate functionality
-    ] >>> enbiggen paint radius
-    [ >>> reduce paint radius
-    else >>> do canvas overlay
-*/
-function bindRadiusKeys() {
+ ] >>> enbiggen paint radius
+ [ >>> reduce paint radius
+ else >>> do canvas overlay
+ */
+function bindKeys() {
     document.onkeydown = function (e) {
         if (e.keyCode == 221) { //big ]
-            radius *= 1.04;
-            radius += 5;
-            cursor.setAttribute("r", radius);
+            if (e.shiftKey) {
+                hardness *= 0.8;
+                hardness -= 4;
+                hardness = hardness < 0 ? 0 : hardness;
+            } else {
+                radius *= 1.04;
+                radius += 5;
+                cursor.setAttribute("r", radius);
+            }
         }
         else if (e.keyCode == 219) { //small [
-            radius *= 0.97;
-            radius = Math.max(radius - 5, 1);
-            cursor.setAttribute("r", radius);
+            if (e.shiftKey) {
+                hardness += 2;
+                hardness *= 1.1;
+            } else {
+                radius *= 0.97;
+                radius = Math.max(radius - 5, 1);
+                cursor.setAttribute("r", radius);
+            }
         }
         else if (e.keyCode == 13 || e.keyCode == 32) { //enter or space
             tool.current().execute();
@@ -92,12 +104,11 @@ function bindRadiusKeys() {
 }
 
 
-
 function fillCanvasFromImage(img, canvas, canvasList) {
     var ctx = canvas.getContext("2d");
     canvas.width = img.width;
     canvas.height = img.height;
-    for (var cv in canvasList){
+    for (var cv in canvasList) {
         var c = canvasList[cv];
         c.width = img.width;
         c.height = img.height;
@@ -173,7 +184,6 @@ function clipCircle(ctx, x, y, r, f) {
     // context.clip();
 }
 
-
 function getPosition(element) {
     var xPosition = 0;
     var yPosition = 0;
@@ -183,14 +193,14 @@ function getPosition(element) {
         yPosition += (element.offsetTop);
         element = element.offsetParent;
     }
-    return { x: xPosition, y: yPosition };
+    return {x: xPosition, y: yPosition};
 }
 
 function IsRightMB(e) {
     e = e || window.event;
     if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
         return e.which == 3;
-    else if ("button" in e)  // IE, Opera 
+    else if ("button" in e)  // IE, Opera
         return e.button == 2;
 }
 
@@ -205,7 +215,7 @@ function fireEvent(node, eventName) {
     var doc;
     if (node.ownerDocument) {
         doc = node.ownerDocument;
-    } else if (node.nodeType == 9){
+    } else if (node.nodeType == 9) {
         // the node may be the document itself, nodeType 9 = DOCUMENT_NODE
         doc = node;
     } else {
@@ -243,10 +253,13 @@ function fireEvent(node, eventName) {
         event.synthetic = true; // allow detection of synthetic events
         // The second parameter says go ahead with the default action
         node.dispatchEvent(event, true);
-    } else  if (node.fireEvent) {
+    } else if (node.fireEvent) {
         // IE-old school style
         var event = doc.createEventObject();
         event.synthetic = true; // allow detection of synthetic events
         node.fireEvent("on" + eventName, event);
     }
 };
+
+
+
