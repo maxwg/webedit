@@ -36,6 +36,11 @@ function loadImage(src) {
     }
 }
 
+function saveImage(){
+    var image = mainCanvas.toDataURL("png");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+    window.location.href=image;
+}
+
 function openImageSelector() {
     var selector = document.getElementById("open-selector")
     fireEvent(selector, "click");

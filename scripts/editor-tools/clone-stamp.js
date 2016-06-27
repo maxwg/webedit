@@ -37,15 +37,17 @@ this.CloneStamp = function () {
                 mpos = getPosition(canvas);
                 cx = e.pageX - mpos.x;
                 cy = e.pageY - mpos.y;
-                draw();
                 if (paint) {
                     sx = sx || cx;
                     sy = sy || cy;
                     cloneX = ocx + Math.cos(rotate)*(cx - sx) + Math.sin(rotate)*(cy-sy);
                     cloneY = ocy - Math.sin(rotate)*(cx - sx) + Math.cos(rotate)*(cy-sy);
+                    draw();
                     var mainCtx = mainCanvas.getContext("2d");
                     mainCtx.drawImage(guideCanvas, 0, 0);
                 }
+                else
+                    draw();
             }
         }
 
@@ -60,6 +62,7 @@ this.CloneStamp = function () {
             sy = undefined;
             cloneX = ocx;
             cloneY = ocy;
+            draw();
         }
         canvas.onmouseleave = function (e) {
             paint = false;
@@ -67,7 +70,7 @@ this.CloneStamp = function () {
         }
 
         window.onwheel = function(e){
-            rotate = (rotate + e.deltaY*0.2) % (Math.PI*2);
+            rotate = (rotate + e.deltaY*0.04) % (Math.PI*2);
             draw();
         }
 
@@ -97,6 +100,7 @@ this.CloneStamp = function () {
         canvas.onmousemove = undefined;
         canvas.onmouseleave = undefined;
         window.onkeyup = undefined;
+        window.onwheel = undefined;
     }
 
     return {
