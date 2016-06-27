@@ -1,18 +1,20 @@
 var mainCanvas, canvasOverlay, mainContainer,
     guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
 
-function init(src, offsets) {
+function init(src, element, offsets) {
     mainPeaks = offsets;
-    writeHTML();
+    writeHTML(element);
     initVars();
     loadEditorScripts(src);
     loadEditorCSS();
 }
 
-function writeHTML() {
-    var body = document.getElementsByTagName("body")[0];
-    body.setAttribute("oncontextmenu", "return false;");
-    body.innerHTML += `
+function writeHTML(el) {
+    var element = el ?
+        document.getElementById(el) :
+        document.getElementsByTagName("body")[0];
+    element.setAttribute("oncontextmenu", "return false;");
+    element.innerHTML += `
      <div id="background"></div>
     <div id="backgroundDarkener"></div>
 
