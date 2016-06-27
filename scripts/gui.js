@@ -1,25 +1,10 @@
-﻿var mainCanvas, canvasOverlay, mainContainer,
-    guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
-Transforms = {mainContainer: {scale: 1}};
+﻿/*******************************************************************************
+ ** gui.js
+ ** Copyright (C) 2015, Max Wang <maxw@inbox.com>
+ ** Manages user interface/CSS aspects of the main editor
+ *******************************************************************************/
 
-function Main() {
-    mainCanvas = document.getElementById("mainCanvas");
-    canvasOverlay = document.getElementById("paintCanvas");
-    guideCanvas = document.getElementById("guideCanvas");
-    mainContainer = document.getElementById("mainContainer");
-    backgroundDiv = document.getElementById("background");
-    cursorContainer = document.getElementById("cursorContainer");
-    toolbox = document.getElementById("toolbox");
-    cursor = document.getElementById("cursor");
-    initializeCanvas("res/img.jpg");
-    window.onresize = function (event) {
-        HandleResize();
-    };
-    mainCanvas.onchange = function (event) {
-        HandleResize();
-    };
-    HandleResize();
-}
+Transforms = {mainContainer: {scale: 1}};
 
 function HandleResize() {
     var cHeight = mainCanvas.clientHeight;

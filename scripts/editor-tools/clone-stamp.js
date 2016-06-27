@@ -23,6 +23,7 @@ this.CloneStamp = function () {
                 cloneY = cy;
                 ocx = cx;
                 ocy = cy;
+                rotate=0;
             }
             else {
                 paint = true;

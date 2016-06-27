@@ -4,12 +4,12 @@
  *******************************************************************************/
 const maxDimensionWidth = 800;
 const maxDimensionHeight = 600;
-var radius = 36.0;
+var radius = 16.0;
 var zoom = 1;
-var hardness = 10;
+var hardness = 4;
 var cursor;
 var prevImgData = null;
-var mainPeaks = null;
+mainPeaks = mainPeaks || null;
 var worker
 
 function initializeCanvas(src) {
