@@ -6,7 +6,7 @@ const maxDimensionWidth = 800;
 const maxDimensionHeight = 600;
 var radius = 16.0;
 var zoom = 1;
-var hardness = 4;
+var hardness = 6;
 var cursor;
 var prevImgData = null;
 mainPeaks = mainPeaks || null;
