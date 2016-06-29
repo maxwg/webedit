@@ -1,26 +1,25 @@
 var mainCanvas, canvasOverlay, mainContainer,
     guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
 
-function init(src, element, offsets) {
-    mainPeaks = offsets;
-    writeHTML(element);
+function init(src, params) {
+    mainPeaks = params.offsets;
+    writeHTML();
     initVars();
     loadEditorScripts(src);
     loadEditorCSS();
 }
 
-function writeHTML(el) {
-    var element = el ?
-        document.getElementById(el) :
-        document.getElementsByTagName("body")[0];
+function writeHTML() {
+    var element =  document.getElementsByTagName("body")[0];
     element.setAttribute("oncontextmenu", "return false;");
     element.innerHTML += `
      <div id="background"></div>
     <div id="backgroundDarkener"></div>
 
     <div id="topmenu">
-        <button class="topmenu_btn" id="img_open_btn" onclick="openImageSelector">Open</button>
+        <!--<button class="topmenu_btn" id="img_open_btn" onclick="openImageSelector">Open</button>-->
         <button class="topmenu_btn" id="img_save_btn">Save</button>
+        <button class="topmenu_btn" id="img_skip_btn">Skip</button>
     </div>
 
     <div id="toolbox">
@@ -93,6 +92,7 @@ function initVars() {
 function loadEditorScripts(src){
     loadScripts([
     "http://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.6/interact.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js",
     "./scripts/hadamard-transform.js",
     "./scripts/kdtree.js",
     "./scripts/flow-graph.js",

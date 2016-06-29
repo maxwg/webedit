@@ -8,12 +8,27 @@
 </head>
 <body>
 <script>
-    var hash = window.location.hash;
-	console.log(hash);
-    if (hash)
-        init(hash.slice(1));
-    else
-        init("res/img.jpg");
+    var urlParams;// LOAD URL PARAMS
+    (window.onpopstate = function () {
+        var match,
+                pl     = /\+/g,  // Regex for replacing addition symbol with a space
+                search = /([^&=]+)=?([^&]*)/g,
+                decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                query  = window.location.search.substring(1);
+
+        urlParams = {};
+        while (match = search.exec(query))
+            urlParams[decode(match[1])] = decode(match[2]);
+
+        init(urlParams.img, urlParams.offsets);
+    })();
+//    var hash = window.location.hash;
+//	console.log(hash);
+//    if (hash)
+//        init(hash.slice(1), urlParams.offsets);
+//    else
+//        init("res/img.jpg", urlParams.offsets);
+
 </script>
 </body>
 </html>
