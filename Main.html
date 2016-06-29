@@ -2,13 +2,18 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>WebEdit</title>
     <script src="main.js"></script>
 </head>
 <body>
-    <script>
-        init('res/img.jpg')
-    </script>
+<script>
+    var hash = window.location.hash;
+	console.log(hash);
+    if (hash)
+        init(hash.slice(1));
+    else
+        init("res/img.jpg");
+</script>
 </body>
 </html>

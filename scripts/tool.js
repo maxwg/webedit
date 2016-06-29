@@ -8,7 +8,6 @@ this.ToolManager = function(canvas){
         document.getElementById("statInpaintTool").addEventListener("click", function() {
             change(StatInpaint);
         }, false);
-
         document.getElementById("cloneTool").addEventListener("click", function() {
             change(CloneStamp)
         }, false);
