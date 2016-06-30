@@ -44,7 +44,10 @@ function saveImage() {
         cache: false,
         dataType: 'json',
         data: {
-            img: image
+            img: image,
+            task: params.task,
+            id: params.id,
+            removed: params.removed
         },
         xhrFields: {
             withCredentials: true
