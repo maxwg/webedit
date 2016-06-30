@@ -51,6 +51,13 @@ function saveImage() {
         },
         xhrFields: {
             withCredentials: true
+        },
+        error: function(e){
+            alert("An error occured. Check console for details");
+            console.log(e);
+        },
+        success: function(){
+            top.location.reload(true);
         }
     });
 }
