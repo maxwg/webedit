@@ -71,7 +71,15 @@ this.CloneStamp = function () {
         }
 
         window.onwheel = function(e){
-            rotate = (rotate + e.deltaY*0.04) % (Math.PI*2);
+
+                var w=e.wheelDelta, d=e.detail;
+                var delta;
+                if (d){
+                    if (w) delta=w/d/40*d>0?1:-1; // Opera
+                    else delta= -d/3;              // Firefox;         TODO: do not /3 for OS X
+                } else delta = w/120;             // IE/Safari/Chrome TODO: /3 for Chrome OS X
+
+            rotate = (rotate + delta*0.15) % (Math.PI*2);
             draw();
         }
 
