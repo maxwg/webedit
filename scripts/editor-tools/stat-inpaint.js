@@ -132,7 +132,7 @@ this.StatInpaint = function () {
     }
 
     function startBackgroundOffsets() {
-        if (typeof (Worker) !== "undefined") {
+        if (typeof(mainPeaks)=="undefined" && typeof (Worker) !== "undefined") {
             document.getElementById("progress").style.opacity = 1;
             document.getElementById("progressText").innerHTML = "Loading";
             document.getElementById("progressBar").style.width = "0%";

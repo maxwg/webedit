@@ -20,7 +20,17 @@
         while (match = search.exec(query))
             urlParams[decode(match[1])] = decode(match[2]);
 
-        init(urlParams.img, urlParams.offsets);
+        var offsets;
+        if(typeof(urlParams.offsets)!="undefined"){
+            offsets = JSON.parse(urlParams.offsets);
+        }
+        init(urlParams.img, {
+            offsets:offsets,
+            title: "Removed "+urlParams.removed,
+            others: urlParams.others,
+            base: urlParams.base
+        });
+
     })();
 //    var hash = window.location.hash;
 //	console.log(hash);

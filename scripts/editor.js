@@ -116,6 +116,12 @@ function bindKeys() {
                 prevImgData = null;
             }
         }
+        else if (e.keyCode == 17){
+            document.getElementById("baseCanvas").style.opacity=1;
+        }
+    }
+    document.onkeyup=function(e){
+        document.getElementById("baseCanvas").style.opacity=0;
     }
 }
 
