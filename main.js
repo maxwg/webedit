@@ -11,7 +11,7 @@ function init(src, p) {
 
 }
 
-function writeHTML(params) {
+function writeHTML() {
     var element =  document.getElementsByTagName("body")[0];
     element.setAttribute("oncontextmenu", "return false;");
     element.innerHTML += "<h1 class='title'>" + params.title + "</h1>";
