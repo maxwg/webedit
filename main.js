@@ -1,17 +1,20 @@
 var mainCanvas, canvasOverlay, mainContainer,
-    guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
+    guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor, params;
 
-function init(src, params) {
+function init(src, p) {
+    params = p;
     mainPeaks = params.offsets;
     writeHTML();
     initVars();
     loadEditorScripts(src);
     loadEditorCSS();
+
 }
 
-function writeHTML() {
+function writeHTML(params) {
     var element =  document.getElementsByTagName("body")[0];
     element.setAttribute("oncontextmenu", "return false;");
+    element.innerHTML += "<h1 class='title'>" + params.title + "</h1>";
     element.innerHTML += `
      <div id="background"></div>
     <div id="backgroundDarkener"></div>
@@ -35,6 +38,7 @@ function writeHTML() {
         <div>
             <canvas id="mainCanvas"></canvas>
             <canvas id="guideCanvas"></canvas>
+            <canvas id="baseCanvas"></canvas>
             <canvas id="paintCanvas"></canvas>
         </div>
     </div>
@@ -115,6 +119,13 @@ function loadEditorScripts(src){
             HandleResize();
         };
         HandleResize();
+        if(params.base){
+            var img = new Image;
+            img.src = params.base;
+            img.onload = function () {
+                fillCanvasFromImage(this, document.getElementById("baseCanvas"));
+            }
+        }
     });
 }
 
