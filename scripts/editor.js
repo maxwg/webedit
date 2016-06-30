@@ -6,7 +6,7 @@ const maxDimensionWidth = 800;
 const maxDimensionHeight = 600;
 var radius = 16.0;
 var zoom = 1;
-var hardness = 6;
+var hardness = 16;
 var cursor;
 var prevImgData = null;
 mainPeaks = mainPeaks || null;
@@ -42,7 +42,6 @@ function saveImage() {
         url: `http://clydebank.cecs.anu.edu.au/cocoono/api/editor/save`,
         type: 'POST',
         cache: false,
-        dataType: 'json',
         data: {
             img: image,
             task: params.task,
