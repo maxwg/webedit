@@ -109,51 +109,51 @@ var POISSONBLEND = function (img, label, paintedArea, pixelNode) {
             imgData[selPx * 4 + 2] = result[i * 3 + 2];
         }
         //console.log(result);
-
-        function PoissonIteration() {
-            for (var i = 0; i < regionSize; i++) {
-                prevResult[i * 3] = result[i * 3];
-                prevResult[i * 3 + 1] = result[i * 3 + 1];
-                prevResult[i * 3 + 2] = result[i * 3 + 2];
-                result[i * 3] = target[i * 3];
-                result[i * 3 + 1] = target[i * 3 + 1];
-                result[i * 3 + 2] = target[i * 3 + 2];
-                for (var n = 0; n < 4; n++) {
-                    if (offDiagonal[i * 4 + n] >= 0) {
-                        var index = offDiagonal[i * 4 + n];
-                        result[i * 3] += result[index * 3];
-                        result[i * 3 + 1] += result[index * 3 + 1];
-                        result[i * 3 + 2] += result[index * 3 + 2];
-                    }
+    }
+    
+    function PoissonIteration() {
+        for (var i = 0; i < regionSize; i++) {
+            prevResult[i * 3] = result[i * 3];
+            prevResult[i * 3 + 1] = result[i * 3 + 1];
+            prevResult[i * 3 + 2] = result[i * 3 + 2];
+            result[i * 3] = target[i * 3];
+            result[i * 3 + 1] = target[i * 3 + 1];
+            result[i * 3 + 2] = target[i * 3 + 2];
+            for (var n = 0; n < 4; n++) {
+                if (offDiagonal[i * 4 + n] >= 0) {
+                    var index = offDiagonal[i * 4 + n];
+                    result[i * 3] += result[index * 3];
+                    result[i * 3 + 1] += result[index * 3 + 1];
+                    result[i * 3 + 2] += result[index * 3 + 2];
                 }
-
-                result[i * 3] = prevResult[i * 3] + omega * (result[i * 3] / diagonal[i] - prevResult[i * 3]);
-                result[i * 3 + 1] = prevResult[i * 3 + 1] + omega * (result[i * 3 + 1] / diagonal[i] - prevResult[i * 3 + 1]);
-                result[i * 3 + 2] = prevResult[i * 3 + 2] + omega * (result[i * 3 + 2] / diagonal[i] - prevResult[i * 3 + 2]);
             }
-        }
 
-        function PoissonError() {
-            var total = 0.0;
-            for (var i = 0; i < regionSize; i++) {
-                var e1 = target[i * 3];
-                var e2 = target[i * 3 + 1];
-                var e3 = target[i * 3 + 2];
-                for (var n = 0; n < 4; n++) {
-                    if (offDiagonal[i * 4 + n] >= 0) {
-                        var index = offDiagonal[i * 4 + n];
-                        e1 += result[index * 3];
-                        e2 += result[index * 3 + 1];
-                        e3 += result[index * 3 + 2];
-                    }
+            result[i * 3] = prevResult[i * 3] + omega * (result[i * 3] / diagonal[i] - prevResult[i * 3]);
+            result[i * 3 + 1] = prevResult[i * 3 + 1] + omega * (result[i * 3 + 1] / diagonal[i] - prevResult[i * 3 + 1]);
+            result[i * 3 + 2] = prevResult[i * 3 + 2] + omega * (result[i * 3 + 2] / diagonal[i] - prevResult[i * 3 + 2]);
+        }
+    }
+
+    function PoissonError() {
+        var total = 0.0;
+        for (var i = 0; i < regionSize; i++) {
+            var e1 = target[i * 3];
+            var e2 = target[i * 3 + 1];
+            var e3 = target[i * 3 + 2];
+            for (var n = 0; n < 4; n++) {
+                if (offDiagonal[i * 4 + n] >= 0) {
+                    var index = offDiagonal[i * 4 + n];
+                    e1 += result[index * 3];
+                    e2 += result[index * 3 + 1];
+                    e3 += result[index * 3 + 2];
                 }
-                e1 -= diagonal[i] * result[i * 3];
-                e2 -= diagonal[i] * result[i * 3 + 1];
-                e3 -= diagonal[i] * result[i * 3 + 2];
-                total += e1 * e1 + e2 * e2 + e3 * e3;
             }
-            return Math.sqrt(total);
+            e1 -= diagonal[i] * result[i * 3];
+            e2 -= diagonal[i] * result[i * 3 + 1];
+            e3 -= diagonal[i] * result[i * 3 + 2];
+            total += e1 * e1 + e2 * e2 + e3 * e3;
         }
+        return Math.sqrt(total);
     }
 
     return imgData;

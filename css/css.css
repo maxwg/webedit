@@ -100,7 +100,7 @@ canvas {
     opacity: 0.3;
     z-index:3;
     pointer-events: all;
-    cursor: crosshair;
+    cursor: none;
 }
 #guideCanvas {
     position: absolute;

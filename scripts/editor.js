@@ -6,7 +6,7 @@ const maxDimensionWidth = 800;
 const maxDimensionHeight = 600;
 var radius = 16.0;
 var zoom = 1;
-var hardness = 16;
+var hardness = 1;
 var cursor;
 var prevImgData = null;
 mainPeaks = mainPeaks || null;
@@ -72,11 +72,11 @@ function openImageSelector() {
  else >>> do canvas overlay
  */
 function bindKeys() {
-    document.onkeydown = function (e) {
+    window.onkeydown = function (e) {
         if (e.keyCode == 221) { //big ]
             if (e.shiftKey) {
                 hardness *= 0.8;
-                hardness -= 4;
+                hardness -= 0.05;
                 hardness = hardness < 0 ? 0 : hardness;
             } else {
                 radius *= 1.04;
@@ -86,16 +86,14 @@ function bindKeys() {
         }
         else if (e.keyCode == 219) { //small [
             if (e.shiftKey) {
-                hardness += 2;
                 hardness *= 1.1;
+                hardness += 0.1;
+                hardness = hardness > 2.4 ? 2.4 : hardness;
             } else {
                 radius *= 0.97;
-                radius = Math.max(radius - 5, 1);
+                radius = Math.max(radius - 4, 1);
                 cursor.setAttribute("r", radius);
             }
-        }
-        else if (e.keyCode == 13 || e.keyCode == 32) { //enter or space
-            tool.current().execute();
         }
         else if (e.keyCode == 61) { //+
             zoom = zoom * 1.15;
@@ -129,7 +127,7 @@ function bindKeys() {
             document.getElementById("baseCanvas").style.opacity=1;
         }
     }
-    document.onkeyup=function(e){
+    window.onkeyup=function(e){
         document.getElementById("baseCanvas").style.opacity=0;
     }
 }

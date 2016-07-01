@@ -52,7 +52,7 @@ this.CloneStamp = function () {
             }
         }
 
-        window.onkeyup = function (e) {
+        document.onkeyup = function (e) {
             draw();
         }
 
@@ -98,7 +98,7 @@ this.CloneStamp = function () {
             ctx.restore();
             ctx.drawImage(ctx.canvas, ~~(-w/2) + cx, ~~(-h/2) + cy);
 
-            clipCircle(ctx, cx, cy, radius, hardness);
+            clipCircle(ctx, cx, cy, radius, hardness*radius);
         }
     }
 
@@ -108,7 +108,7 @@ this.CloneStamp = function () {
         canvas.onmousedown = undefined;
         canvas.onmousemove = undefined;
         canvas.onmouseleave = undefined;
-        window.onkeyup = undefined;
+        document.onkeyup = undefined;
         window.onwheel = undefined;
     }
 

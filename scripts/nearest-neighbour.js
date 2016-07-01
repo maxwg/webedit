@@ -16,7 +16,8 @@
 var ANN = function (img, patch_size) {
     const PATCH_SIZE = patch_size, PATCH_LEN = patch_size * patch_size;
     const width = img.w, height = img.h;
-    const minimumDistance = Math.max(width, height) / 12;
+    const minimumDistance = Math.max(width, height) / 16;
+    console.log(minimumDistance);
     const boundX = width - PATCH_SIZE, boundY = height - PATCH_SIZE;
     const vsize = 24;
 
@@ -82,7 +83,7 @@ var ANN = function (img, patch_size) {
             }
             else if (!isDistance) { //Hope for best -- Get furthest element.
                if (dist < msDist) {
-                   msDist = dist*1000+100;
+                   msDist = 10000000000000-dist;
                    mostSimilar = elem;
                }
             }

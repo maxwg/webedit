@@ -14,7 +14,7 @@ this.ToolManager = function(canvas){
     }
 
     function change(tool){
-        if(tool.bind && tool.unbind && tool.execute){
+        if(tool.bind && tool.unbind){
             curTool.unbind(canvas);
             curTool = tool;
             curTool.bind(canvas)

@@ -30,16 +30,6 @@ var PhotomontageGraphCut = function (image, area, offsets, iterations) {
     var imgH = image.height;
     var alphaX, alphaY, pixel, px, py, p4;
 
-    function shuffleArray(array, toIdx) {
-        for (var i = toIdx; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-        return array;
-    }
-
     function findOptimalAssignment() {
         var label = []; //Array mapping pixel to its labelling (pixel offset * 4)
         var paintedArea = []; //Array mapping node to pixel
@@ -161,6 +151,7 @@ var PhotomontageGraphCut = function (image, area, offsets, iterations) {
                 }
 
                 graph.maxFlow();
+                // console.log(graph.maxFlow());
 //            console.log(iter + ": " + graph.maxFlow());
 
                 for (var j = 0; j < nodeCount; j++) {

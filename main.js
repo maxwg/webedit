@@ -74,7 +74,7 @@ function writeHTML() {
                 <feMergeNode in="SourceGraphic" /> <!-- this contains the element that the filter is applied to -->
             </feMerge>
         </filter>
-        <circle r="16" stroke="white" stroke-width="1.5" fill-opacity="0" id="cursor" style="filter:url(#dropshadow)" />
+        <circle r="16" stroke="white" stroke-width="1" fill-opacity="0" id="cursor" style="filter:url(#dropshadow)" />
     </svg>
 
 
