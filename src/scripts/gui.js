@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  ** gui.js
- ** Copyright (C) 2015, Max Wang <maxw@inbox.com>
+ ** Copyright (C) 2015, Max Wang <_mw@outlook.com>
  ** Manages user interface/CSS aspects of the main editor
  *******************************************************************************/
 

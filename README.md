@@ -1,2 +1,4 @@
 # webedit
-decided to keep this in a separate repo - since it is not node based and will not support modules/etc
+This library provides a basic implementation of the Interactive Digital Photomontage graph-cut function, as specified
+by Agarwala et al (2004). Performs basic object removal
+

@@ -1,6 +1,21 @@
+/*******************************************************************************
+ ** main.js
+ ** Copyright (C) 2015, Max Wang <_mw@outlook.com>
+ *******************************************************************************/
 var mainCanvas, canvasOverlay, mainContainer,
     guideCanvas, backgroundDiv, cursorContainer, toolbox, cursor;
 
+/**
+ * function init
+ * @param src - default image (jpg, png) to initialize canvas with
+ * @param element <optional>
+ *      string: searches for element matching ID (if any) otherwise first element with matching class
+ *      DOM object (div)
+ *      Writes canvas lib into div
+ *      defaults into body
+ * @param offsets <optional>
+ *      precomputed offsets for the image (if any)
+ */
 function init(src, element, offsets) {
     mainPeaks = offsets;
     writeHTML(element);
@@ -18,10 +33,10 @@ function writeHTML(el) {
      <div id="background"></div>
     <div id="backgroundDarkener"></div>
 
-    <div id="topmenu">
-        <button class="topmenu_btn" id="img_open_btn" onclick="openImageSelector">Open</button>
-        <button class="topmenu_btn" id="img_save_btn">Save</button>
-    </div>
+    <!--<div id="topmenu">-->
+        <!--<button class="topmenu_btn" id="img_open_btn" onclick="openImageSelector">Open</button>-->
+        <!--<button class="topmenu_btn" id="img_save_btn">Save</button>-->
+    <!--</div>-->
 
     <div id="toolbox">
         <div id="toolboxHead">Tools</div>
@@ -40,7 +55,7 @@ function writeHTML(el) {
         </div>
     </div>
 
-    <div id="settings">
+    <div id="settings" style="position:fixed;bottom:4px;left:8px;">
         <p class="settingsLabel">
             Quality:
             <input type="range" id="qualitySlider" min="15" value="40" max="200" step="1" />
