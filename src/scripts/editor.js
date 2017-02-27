@@ -10,7 +10,7 @@ var hardness = 6;
 var cursor;
 var prevImgData = null;
 mainPeaks = mainPeaks || null;
-var worker
+var worker;
 
 function initializeCanvas(src) {
     var img = new Image;
@@ -36,26 +36,18 @@ function loadImage(src) {
     }
 }
 
+
 function saveImage() {
     var image = mainCanvas.toDataURL("png");
-    $.ajax({
-        url: `http://clydebank.cecs.anu.edu.au/cocoono/api/editor/save`,
-        type: 'POST',
-        cache: false,
-        dataType: 'json',
-        data: {
-            img: image
-        },
-        xhrFields: {
-            withCredentials: true
-        }
-    });
+
+    var w=window.open('about:blank','image from canvas');
+    w.document.write("<img src='"+image+"' alt='from canvas'/>");
 }
 
-function openImageSelector() {
-    var selector = document.getElementById("open-selector")
-    fireEvent(selector, "click");
-}
+// function openImageSelector() {
+//     var selector = document.getElementById("open-selector")
+//     fireEvent(selector, "click");
+// }
 
 /*  Enable the use of keyboard keypresses to activate functionality
  ] >>> enbiggen paint radius
@@ -219,11 +211,3 @@ function IsRightMB(e) {
     else if ("button" in e)  // IE, Opera
         return e.button == 2;
 }
-
-document.getElementById('img_save_btn').addEventListener("click", function() {
-    saveImage();
-}, false);
-
-document.getElementById('img_skip_btn').addEventListener("click", function() {
-    top.location.reload(true);
-}, false);

@@ -22,6 +22,24 @@ function init(src, element, offsets) {
     initVars();
     loadEditorScripts(src);
     loadEditorCSS();
+
+    document.getElementById('img_save_btn').addEventListener("click", function() {
+        saveImage();
+    }, false);
+
+    document.getElementById('img_open_btn').addEventListener("click", function() {
+        var fileSelector = document.getElementById("open-selector");
+        fileSelector.click();
+    }, false);
+
+    document.getElementById('open-selector').onchange = function () {
+        var file = this.files[0];
+        var fr = new FileReader();
+        fr.onload = function(){
+            loadImage(fr.result);
+        }
+        fr.readAsDataURL(file);
+    };
 }
 
 function writeHTML(el) {
@@ -33,10 +51,10 @@ function writeHTML(el) {
      <div id="background"></div>
     <div id="backgroundDarkener"></div>
 
-    <!--<div id="topmenu">-->
-        <!--<button class="topmenu_btn" id="img_open_btn" onclick="openImageSelector">Open</button>-->
-        <!--<button class="topmenu_btn" id="img_save_btn">Save</button>-->
-    <!--</div>-->
+    <div id="topmenu">
+        <button class="topmenu_btn" id="img_open_btn">Open</button>
+        <button class="topmenu_btn" id="img_save_btn">Save</button>
+    </div>
 
     <div id="toolbox">
         <div id="toolboxHead">Tools</div>
@@ -107,7 +125,8 @@ function initVars() {
 
 function loadEditorScripts(src){
     loadScripts([
-    "http://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.6/interact.min.js",
+    "https://code.jquery.com/jquery-3.1.1.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.6/interact.min.js",
     "./scripts/hadamard-transform.js",
     "./scripts/kdtree.js",
     "./scripts/flow-graph.js",
