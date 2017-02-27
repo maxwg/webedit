@@ -83,12 +83,12 @@ this.CloneStamp = function () {
             var h = mainCanvas.height;
 
             ctx.save();
-            ctx.translate(w/2, h/2);
+            ctx.translate(~~(w/2), ~~(h/2));
             // ctx.drawImage(mainCanvas, px - cloneX, py - cloneY);
             ctx.rotate(rotate);
             ctx.drawImage(mainCanvas, -cloneX, -cloneY);
             ctx.restore();
-            ctx.drawImage(ctx.canvas, -w/2 + cx, -h/2 + cy);
+            ctx.drawImage(ctx.canvas, ~~(-w/2) + cx, ~~(-h/2) + cy);
 
             clipCircle(ctx, cx, cy, radius, hardness);
         }
